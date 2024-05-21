@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .product {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+        .product:last-child {
+            border-bottom: none;
+        }
+        .product input[type="number"] {
+            width: 40px;
+            text-align: center;
+        }
+        .total {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Carrito de Compras</h1>
+    </header>
+    <div class="container">
+        <div id="products">
+            <div class="product">
+                <span>Producto 1</span>
+                <input type="number" value="1" min="1">
+                <button onclick="addToCart('Producto ', 10)">Agregar al Carrito</button>
+            </div>
+            <div class="product">
+                <span>Producto 2</span>
+                <input type="number" value="1" min="1">
+                <button onclick="addToCart('Producto ', 20)">Agregar al Carrito</button>
+            </div>
+            <div class="product">
+                <span>Producto 3</span>
+                <input type="number" value="1" min="1">
+                <button onclick="addToCart('Producto ', 30)">Agregar al Carrito</button>
+            </div>
+        </div>
+        <div id="cart">
+            <h2></h2>
+            <div id="cart-items"></div>
+            <div class="total" id="total">Total: $0.00</div>
+            <button onclick="removeSelected()"> Eliminar productos Seleccionados</button>
+            <button onclick="updateSelected()"> Modificar productos Seleccionados</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function addToCart(productName, price) {
+            const quantity = parseInt(document.querySelector(`input[value="${productName}"]`).value);
+            const existingProductIndex = cart.findIndex(item => item.productName === productName);
+            if (existingProductIndex !== -1) {
+                cart[existingProductIndex].quantity += quantity;
+            } else {
+                cart.push({ productName, price, quantity });
+            }
+            renderCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        function updateQuantity(index, newQuantity) {
+            cart[index].quantity = newQuantity;
+            renderCart();
+        }
+
+        function removeSelected() {
+            cart = cart.filter(item => !item.selected);
+            renderCart();
+        }
+
+        function updateSelected() {
+            const newQuantity = parseInt(prompt("Ingrese la nueva cantidad para los productos seleccionados:"));
+            if (!isNaN(newQuantity) && newQuantity > 0) {
+                cart.forEach(item => {
+                    if (item.selected) {
+                        item.quantity = newQuantity;
+                    }
+                });
+                renderCart();
+            } else {
+                alert("Ingrese una cantidad válida.");
+            }
+        }
+
+        function renderCart() {
+            const cartItems = document.getElementById('cart-items');
+            cartItems.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                const totalItemPrice = item.price * item.quantity;
+                total += totalItemPrice;
+                const cartItem = document.createElement('div');
+                cartItem.classList.add('product');
+                cartItem.innerHTML = `
+                    <input type="checkbox" onchange="cart[${index}].selected = this.checked">
+                    <span>${item.productName}</span>
+                    <input type="number" value="${item.quantity}" min="1" onchange="updateQuantity(${index}, this.value)">
+                    <button onclick="removeFromCart(${index})">Eliminar</button>
+                    <span>$${totalItemPrice.toFixed(2)}</span>
+                `;
+                if (item.selected) {
+                    cartItem.querySelector('input[type="checkbox"]').checked = true;
+                }
+                cartItems.appendChild(cartItem);
+            });
+            document.getElementById('total').textContent = `Total: $${total.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
